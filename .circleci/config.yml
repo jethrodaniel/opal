@@ -46,14 +46,30 @@ executors:
 
 
 commands:
-  run-rspec:
-    description: 'RSpec'
+  mspec-ruby-nodejs-tz:
     steps:
-      - run:
-          name: Run RSpec
-          command: bundle exec rspec
-      - store_test_results:
-          path: test_results
+      - run: bundle exec rake mspec_ruby_nodejs TZ="/usr/share/zoneinfo/Pacific/Fiji"
+  smoke-test:
+    steps:
+      - run: bundle exec rake smoke_test
+  mspec-opal-chrome:
+    steps:
+      - run: bundle exec mspec_opal_chrome
+  mspec-ruby-chrome:
+    steps:
+      - run: bundle exec mspec_ruby_chrome
+  mspec-opal-nodejs:
+    steps:
+      - run: bundle exec mspec_opal_nodejs
+  mspec-ruby-nodejs:
+    steps:
+      - run: bundle exec mspec_ruby_nodejs
+  run-rspec:
+    steps:
+      - run: bundle exec rspec
+  run-lint:
+    steps:
+      - run: bundle exec lint
 
   rb-deps:
     description: 'Install and cache Ruby dependencies'
@@ -61,7 +77,6 @@ commands:
       - run: bundle -v || gem install bundler
       - restore_cache:
           keys:
-            - rb-deps-v1-{{ checksum "Gemfile.lock" }}
             - rb-deps-v1-
       - run: bundle check || bundle install
       - save_cache:
@@ -103,6 +118,14 @@ jobs:
       - checkout
       - rb-deps
       - run-rspec
+      - mspec-opal-chrome
+      - mspec-ruby-chrome
+      - mspec-opal-nodejs
+      - mspec-ruby-nodejs
+      - mspec-ruby-nodejs-tz
+      - smoke-test
+      - run-lint
+
   rspec-2-5:
     executor: ruby-2-5
     steps:
@@ -127,6 +150,12 @@ jobs:
       - checkout
       - rb-deps
       - run-rspec
+  lint:
+    executor: ruby-2-6
+    steps:
+      - checkout
+      - rb-deps
+      - run-lint
 
 workflows:
   version: 2
