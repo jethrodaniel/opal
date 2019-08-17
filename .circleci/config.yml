@@ -12,19 +12,19 @@ environment:
 executors:
   ruby-2-6:
     docker:
-      - image: circleci/ruby:2.6-latest-node-browsers
+      - image: circleci/ruby:2.6-node-browsers-latest
   ruby-2-5:
     docker:
-      - image: circleci/ruby:2.5-latest-node-browsers
+      - image: circleci/ruby:2.5-node-browsers-latest
   ruby-2-4:
     docker:
-      - image: circleci/ruby:2.4-latest-node-browsers
+      - image: circleci/ruby:2.4-node-browsers-latest
   ruby-2-3:
     docker:
-      - image: circleci/ruby:2.3-latest-node-browsers
+      - image: circleci/ruby:2.3-node-browsers-latest
   jruby-latest:
     docker:
-      - image: circleci/jruby:latest-node-browsers
+      - image: circleci/jruby:node-browsers-latest
   # truffleruby:
   #   docker:
   #     - image: circleci/stretch
