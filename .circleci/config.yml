@@ -10,16 +10,16 @@ environment:
   NODE_VERSION: v12.6
 
 executors:
-  ruby-2.6:
+  ruby-2-6:
     docker:
       - image: circleci/ruby:2.6-latest-node-browsers
-  ruby-2.5:
+  ruby-2-5:
     docker:
       - image: circleci/ruby:2.5-latest-node-browsers
-  ruby-2.4:
+  ruby-2-4:
     docker:
       - image: circleci/ruby:2.4-latest-node-browsers
-  ruby-2.3:
+  ruby-2-3:
     docker:
       - image: circleci/ruby:2.3-latest-node-browsers
   jruby-latest:
@@ -47,11 +47,13 @@ executors:
 
 commands:
   run-rspec:
-    - run:
-        name: Run RSpec
-        command: bundle exec rspec
-    - store_test_results:
-        path: test_results
+    description: 'RSpec'
+    steps:
+      - run:
+          name: Run RSpec
+          command: bundle exec rspec
+      - store_test_results:
+          path: test_results
 
   rb-deps:
     description: 'Install and cache Ruby dependencies'
@@ -95,26 +97,26 @@ commands:
           paths:
             - ".nvm"
 jobs:
-  rspec-2.6:
-    executor: ruby-2.6
+  rspec-2-6:
+    executor: ruby-2-6
     steps:
       - checkout
       - rb-deps
       - run-rspec
-  rspec-2.5:
-    executor: ruby-2.5
+  rspec-2-5:
+    executor: ruby-2-5
     steps:
       - checkout
       - rb-deps
       - run-rspec
-  rspec-2.4:
-    executor: ruby-2.4
+  rspec-2-4:
+    executor: ruby-2-4
     steps:
       - checkout
       - rb-deps
       - run-rspec
-  rspec-2.3:
-    executor: ruby-2.3
+  rspec-2-3:
+    executor: ruby-2-3
     steps:
       - checkout
       - rb-deps
@@ -130,10 +132,10 @@ workflows:
   version: 2
   build_pr:
     jobs:
-      - rspec-2.6
-      - rspec-2.5
-      - rspec-2.4
-      - rspec-2.3
+      - rspec-2-6
+      - rspec-2-5
+      - rspec-2-4
+      - rspec-2-3
       - rspec-jruby
 
       # - rspec
