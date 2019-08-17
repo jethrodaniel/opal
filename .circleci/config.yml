@@ -1,0 +1,153 @@
+version: 2.1
+
+# orbs:
+#   win: circleci/windows@1.0.0 # The Windows orb give you everything you need to start using the Windows executor.
+
+environment:
+  BUNDLE_JOBS: 3
+  BUNDLE_RETRY: 3
+  BUNDLE_PATH: vendor/rb-deps
+  NODE_VERSION: v12.6
+
+executors:
+  ruby-2.6:
+    docker:
+      - image: circleci/ruby:2.6-latest-node-browsers
+  ruby-2.5:
+    docker:
+      - image: circleci/ruby:2.5-latest-node-browsers
+  ruby-2.4:
+    docker:
+      - image: circleci/ruby:2.4-latest-node-browsers
+  ruby-2.3:
+    docker:
+      - image: circleci/ruby:2.3-latest-node-browsers
+  jruby-latest:
+    docker:
+      - image: circleci/jruby:latest-node-browsers
+  # truffleruby:
+  #   docker:
+  #     - image: circleci/stretch
+
+
+  # # Keep track of which version of node we're running the specs against
+  # - node -v
+  # - git submodule update --init
+  # - npm install -g jshint
+  # - npm install -g uglify-js
+  # - bundle config without doc
+  # - which google-chrome-stable
+  # - google-chrome-stable --version
+  # - export RUBYOPT=-w
+  # # Wokraround from https://github.com/travis-ci/travis-ci/issues/9024#issuecomment-356282802
+  # - sudo chown root /opt/google/chrome/chrome-sandbox
+  # - sudo chmod 4755 /opt/google/chrome/chrome-sandbox
+
+
+
+commands:
+  run-rspec:
+    - run:
+        name: Run RSpec
+        command: bundle exec rspec
+    - store_test_results:
+        path: test_results
+
+  rb-deps:
+    description: 'Install and cache Ruby dependencies'
+    steps:
+      - run: bundle -v || gem install bundler
+      - restore_cache:
+          keys:
+            - rb-deps-v1-{{ checksum "Gemfile.lock" }}
+            - rb-deps-v1-
+      - run: bundle check || bundle install
+      - save_cache:
+          key: rb-deps-v1-{{ checksum "Gemfile.lock" }}
+          paths:
+            - vendor/bundle
+  js-deps:
+    description: 'Install and cache JavaScript dependencies'
+    steps:
+      - restore_cache:
+          keys:
+            - js-deps-v1
+      - run:
+          name: Install nvm
+          command: |
+            set +e
+            touch $BASH_ENV
+            curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh | bash
+            echo 'export NVM_DIR="$PWD/.nvm"' >> $BASH_ENV
+            echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> $BASH_ENV
+      - run:
+          name: Install node version
+          command: |
+            nvm install v$NODE_VERSION
+            echo 'nvm alias default v$NODE_VERSION' >> $BASH_ENV
+      - run:
+          name: Install JS deps
+          command: |
+            npm install -g jshint
+            npm install -g uglify-js
+      - save_cache:
+          key: js-deps-v1
+          paths:
+            - ".nvm"
+jobs:
+  rspec-2.6:
+    executor: ruby-2.6
+    steps:
+      - checkout
+      - rb-deps
+      - run-rspec
+  rspec-2.5:
+    executor: ruby-2.5
+    steps:
+      - checkout
+      - rb-deps
+      - run-rspec
+  rspec-2.4:
+    executor: ruby-2.4
+    steps:
+      - checkout
+      - rb-deps
+      - run-rspec
+  rspec-2.3:
+    executor: ruby-2.3
+    steps:
+      - checkout
+      - rb-deps
+      - run-rspec
+  rspec-jruby:
+    executor: jruby-latest
+    steps:
+      - checkout
+      - rb-deps
+      - run-rspec
+
+workflows:
+  version: 2
+  build_pr:
+    jobs:
+      - rspec-2.6
+      - rspec-2.5
+      - rspec-2.4
+      - rspec-2.3
+      - rspec-jruby
+
+      # - rspec
+      # - mspec
+      # - lint
+      # - minitest
+      #
+      # browser_test
+      # lint
+      # minitest
+      # mspec_opal_chrome
+      # mspec_opal_nodejs
+      # mspec_ruby_chrome
+      # mspec_ruby_nodejs_with_timezone
+      # rspec
+      # smoke_test
+      #
