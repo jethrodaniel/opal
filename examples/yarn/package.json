@@ -1,0 +1,12 @@
+{
+  "name": "yarn-opal-example",
+  "version": "0.1.0",
+  "description": "a simple example of using Opal with npm packages",
+  "main": "lib/app.js",
+  "author": "Mark Delk",
+  "license": "MIT",
+  "private": false,
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
